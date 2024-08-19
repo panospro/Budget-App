@@ -1,20 +1,23 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import axios from 'axios'
-import { Box, TextField, Button, Typography, Paper } from '@mui/material'
+import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material'
 
+// TODO: Create a forgot password option
 function Login ({ navigate }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('') // Clear any previous errors
     try {
       const response = await axios.post('http://localhost:4000/api/auth/login', { email, password })
       localStorage.setItem('token', response.data.token)
       navigate('dashboard') // Use navigate prop to change page
     } catch (error) {
-      alert('Invalid email or password')
+      setError('Invalid email or password')
     }
   }
 
@@ -46,12 +49,17 @@ function Login ({ navigate }) {
             required
           />
         </Box>
+        {error && (
+          <Box mb={2}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        )}
         <Button type="submit" variant="contained" color="primary" fullWidth>
           Login
         </Button>
         <Box mt={2}>
           <Typography>
-            Dont have an account?{' '}
+            Don{'`'}t have an account?{' '}
             <Button variant="text" onClick={() => navigate('signup')}>
               Sign Up
             </Button>
