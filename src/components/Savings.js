@@ -2,32 +2,40 @@
 /* eslint-disable react/display-name */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
-import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, CircularProgress, Paper, LinearProgress, CardHeader, Divider, Alert } from '@mui/material'
-import { Add, Savings as SavingsIcon, AccountBalance } from '@mui/icons-material'
+import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, CircularProgress, LinearProgress, CardHeader, Divider, Alert, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
+import { Add, Savings as SavingsIcon, AccountBalance, Settings } from '@mui/icons-material'
 
-const formatCurrency = (value) => `$${value.toFixed(2)}`
+const formatCurrency = (value) => `${value.toFixed(1).replace('.', ',')} €`
 
-const SavingsProgress = React.memo(({ title, current, goal, amount, setAmount, handleAdd, loading, icon }) => {
+const SavingsProgress = React.memo(({ title, current, goal, amount, setAmount, handleAdd, loading, icon, onEditGoal }) => {
   return (
     <Card>
       <CardHeader
         avatar={icon}
+        action={onEditGoal && (
+          <IconButton onClick={onEditGoal}>
+            <Settings />
+          </IconButton>
+        )}
         title={title}
         titleTypographyProps={{ variant: 'h6' }}
         sx={{ backgroundColor: '#f5f5f5' }}
       />
       <CardContent>
         <Typography variant="body1">Current Balance: {formatCurrency(current)}</Typography>
-        <Typography variant="body1">Goal: {formatCurrency(goal)}</Typography>
-        <LinearProgress
-          variant="determinate"
-          value={(current / goal) * 100}
-          sx={{ mt: 2, mb: 2 }}
-        />
-        <Typography variant="body2" color="textSecondary">
-          Progress: {((current / goal) * 100).toFixed(2)}%
-        </Typography>
-
+        {goal !== undefined && (
+          <>
+            <Typography variant="body1">Goal: {formatCurrency(goal)}</Typography>
+            <LinearProgress
+              variant="determinate"
+              value={(current / goal) * 100}
+              sx={{ mt: 2, mb: 2 }}
+            />
+            <Typography variant="body2" color="textSecondary">
+              Progress: {((current / goal) * 100).toFixed(2)}%
+            </Typography>
+          </>
+        )}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 3 }}>
           <TextField
             label="Amount"
@@ -82,16 +90,51 @@ const TransactionList = React.memo(({ transactions }) => {
   )
 })
 
+const EditGoalDialog = ({ open, onClose, currentGoal, onSave }) => {
+  const [newGoal, setNewGoal] = useState(currentGoal)
+
+  const handleSave = () => {
+    onSave(parseFloat(newGoal))
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Edit Goal</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Enter the new goal amount:
+        </DialogContentText>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="New Goal"
+          type="number"
+          fullWidth
+          value={newGoal}
+          onChange={(e) => setNewGoal(e.target.value)}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export function Savings () {
   const [state, setState] = useState({
     savings: 1000,
-    goal: 5000,
     emergencyFund: 2000,
     emergencyFundGoal: 3000,
     amount: '',
     savingsTransactions: [],
     emergencyTransactions: [],
-    loading: false
+    loading: false,
+    isEditingGoal: false
   })
 
   const handleAddTransaction = () => {
@@ -144,15 +187,19 @@ export function Savings () {
     }, 500)
   }
 
+  const handleEditGoal = (newGoal) => {
+    setState((prevState) => ({
+      ...prevState,
+      emergencyFundGoal: newGoal
+    }))
+  }
+
   return (
     <Box>
       <Grid container spacing={3}>
         <Grid item p={1} xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Emergency Fund
-              </Typography>
               <Grid container direction="column" spacing={2}>
                 <Grid item>
                   <SavingsProgress
@@ -164,6 +211,7 @@ export function Savings () {
                     handleAdd={handleAddToEmergencyFund}
                     loading={state.loading}
                     icon={<SavingsIcon />}
+                    onEditGoal={() => setState((prevState) => ({ ...prevState, isEditingGoal: true }))}
                   />
                 </Grid>
                 <Grid item>
@@ -177,15 +225,11 @@ export function Savings () {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                General Savings
-              </Typography>
               <Grid container direction="column" spacing={2}>
                 <Grid item>
                   <SavingsProgress
                     title="General Savings"
                     current={state.savings}
-                    goal={state.goal}
                     amount={state.amount}
                     setAmount={(value) => setState((prevState) => ({ ...prevState, amount: value }))}
                     handleAdd={handleAddTransaction}
@@ -201,6 +245,13 @@ export function Savings () {
           </Card>
         </Grid>
       </Grid>
+
+      <EditGoalDialog
+        open={state.isEditingGoal}
+        onClose={() => setState((prevState) => ({ ...prevState, isEditingGoal: false }))}
+        currentGoal={state.emergencyFundGoal}
+        onSave={handleEditGoal}
+      />
     </Box>
   )
 }
