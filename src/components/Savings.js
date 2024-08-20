@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/display-name */
 /* eslint-disable no-unused-vars */
+// TODO: Fix backend for savings
+// TODO: Make recent transactions be seperated by month and year e.g 10/2024 and also have the total saved on each month
 import React, { useState } from 'react'
 import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, CircularProgress, LinearProgress, CardHeader, Divider, Alert, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
 import { Add, Savings as SavingsIcon, AccountBalance, Settings } from '@mui/icons-material'
