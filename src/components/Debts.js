@@ -1,6 +1,6 @@
-// // Debts.js
 import React, { useState } from 'react'
-import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
+import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tooltip, IconButton } from '@mui/material'
+import { Info } from '@mui/icons-material'
 
 // Function to calculate the number of payments required to pay off the debt
 const calculatePayoffTime = (principal, interestRate, minPayment) => {
@@ -12,13 +12,29 @@ const calculatePayoffTime = (principal, interestRate, minPayment) => {
   return Math.log(minPayment / (minPayment - principal * monthlyRate)) / Math.log(1 + monthlyRate)
 }
 
+// Strategy to sort debts by the avalanche method
+const sortByAvalanche = (debts) => {
+  return [...debts].sort((a, b) => b.interestRate - a.interestRate)
+}
+
+// Strategy to sort debts by the snowball method
+const sortBySnowball = (debts) => {
+  return [...debts].sort((a, b) => a.principal - b.principal)
+}
+
+// Mock strategy to sort debts by the tsunami method (requires a 'stressLevel' attribute)
+const sortByTsunami = (debts) => {
+  return [...debts].sort((a, b) => b.stressLevel - a.stressLevel)
+}
+
 export function Debts () {
   const [debts, setDebts] = useState([])
   const [formState, setFormState] = useState({
     description: '',
     principal: '',
     interestRate: '',
-    minPayment: ''
+    minPayment: '',
+    stressLevel: ''
   })
   const [paymentDialog, setPaymentDialog] = useState({
     open: false,
@@ -32,9 +48,9 @@ export function Debts () {
   }
 
   const handleAddDebt = () => {
-    const { description, principal, interestRate, minPayment } = formState
+    const { description, principal, interestRate, minPayment, stressLevel } = formState
 
-    if (!description || !principal || !interestRate || !minPayment) {
+    if (!description || !principal || !interestRate || !minPayment || !stressLevel) {
       return
     }
 
@@ -44,6 +60,7 @@ export function Debts () {
       principal: parseFloat(principal),
       interestRate: parseFloat(interestRate),
       minPayment: parseFloat(minPayment),
+      stressLevel: parseFloat(stressLevel), // Mock stress level for tsunami method
       payoffTime: calculatePayoffTime(parseFloat(principal), parseFloat(interestRate), parseFloat(minPayment))
     }
 
@@ -54,7 +71,8 @@ export function Debts () {
       description: '',
       principal: '',
       interestRate: '',
-      minPayment: ''
+      minPayment: '',
+      stressLevel: ''
     })
   }
 
@@ -106,47 +124,46 @@ export function Debts () {
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Description"
-                name="description"
-                value={formState.description}
-                onChange={handleChange}
-                variant="outlined"
-                fullWidth
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField label="Description" name="description" value={formState.description} onChange={handleChange} variant="outlined" fullWidth style={{ marginRight: 8 }}/>
+                <Tooltip title="A brief description of the debt (e.g., Credit Card, Car Loan).">
+                  <IconButton size="small"><Info fontSize="small" /></IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Principal Amount (€)"
-                name="principal"
-                value={formState.principal}
-                onChange={handleChange}
-                variant="outlined"
-                fullWidth
-                type="number"
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField label="Principal Amount (€)" name="principal" value={formState.principal} onChange={handleChange} variant="outlined" fullWidth type="number" style={{ marginRight: 8 }}/>
+                <Tooltip title="The total amount of debt you owe.">
+                  <IconButton size="small"><Info fontSize="small" /></IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Interest Rate (%)"
-                name="interestRate"
-                value={formState.interestRate}
-                onChange={handleChange}
-                variant="outlined"
-                fullWidth
-                type="number"
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField label="Interest Rate (%)" name="interestRate" value={formState.interestRate} onChange={handleChange} variant="outlined" fullWidth type="number" style={{ marginRight: 8 }} />
+                  <Tooltip title="The annual interest rate for this debt.">
+                  <IconButton size="small"><Info fontSize="small" /></IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Minimum Payment (€)"
-                name="minPayment"
-                value={formState.minPayment}
-                onChange={handleChange}
-                variant="outlined"
-                fullWidth
-                type="number"
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField label="Minimum Payment (€)" name="minPayment" value={formState.minPayment} onChange={handleChange} variant="outlined" fullWidth type="number" style={{ marginRight: 8 }}/>
+                <Tooltip title="The smallest amount you are required to pay each month.">
+                  <IconButton size="small">
+                    <Info fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField label="Stress Level (1-10)" name="stressLevel" value={formState.stressLevel} onChange={handleChange} variant="outlined" fullWidth type="number" style={{ marginRight: 8 }}/>
+                <Tooltip title="How much stress this debt causes you on a scale from 1 (low) to 10 (high).">
+                  <IconButton size="small"><Info fontSize="small" /></IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             <Grid item xs={12}>
               <Button
@@ -191,6 +208,81 @@ export function Debts () {
             : (
             <Alert severity="info">No debts added yet.</Alert>
               )}
+        </CardContent>
+      </Card>
+
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Debt Repayment Strategies
+            <Tooltip title="Choose a strategy that best suits your financial and emotional situation.">
+              <IconButton size="small">
+                <Info fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6">
+                Avalanche Method
+                <Tooltip title="Pay off debts with the highest interest rates first to minimize total interest paid.">
+                  <IconButton size="small">
+                    <Info fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Typography>
+              <List>
+                {sortByAvalanche(debts).map((debt) => (
+                  <ListItem key={debt.id}>
+                    <ListItemText
+                      primary={debt.description}
+                      secondary={`Balance: €${debt.principal.toFixed(2)} - Interest Rate: ${debt.interestRate}%`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6">
+                Snowball Method
+                <Tooltip title="Pay off the smallest debts first to build momentum and see quick results.">
+                  <IconButton size="small">
+                    <Info fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Typography>
+              <List>
+                {sortBySnowball(debts).map((debt) => (
+                  <ListItem key={debt.id}>
+                    <ListItemText
+                      primary={debt.description}
+                      secondary={`Balance: €${debt.principal.toFixed(2)} - Interest Rate: ${debt.interestRate}%`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6">
+                Tsunami Method
+                <Tooltip title="Pay off the debts that cause the most stress first, regardless of balance or interest rate.">
+                  <IconButton size="small">
+                    <Info fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Typography>
+              <List>
+                {sortByTsunami(debts).map((debt) => (
+                  <ListItem key={debt.id}>
+                    <ListItemText
+                      primary={debt.description}
+                      secondary={`Balance: €${debt.principal.toFixed(2)} - Stress Level: ${debt.stressLevel}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 
