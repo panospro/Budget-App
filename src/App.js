@@ -18,7 +18,7 @@ function App () {
   }
 
   return (
-    <Container maxWidth="sm">
+    <Container>
       <CssBaseline />
       {renderPage()}
     </Container>

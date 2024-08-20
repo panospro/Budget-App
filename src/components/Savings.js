@@ -2,7 +2,7 @@
 /* eslint-disable react/display-name */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
-import { Box, Typography, Button, TextField, List, ListItem, ListItemText, CircularProgress, Paper, Grid, LinearProgress, Card, CardContent, CardHeader, Divider, Alert } from '@mui/material'
+import { Box, Grid, Card, CardContent, Typography, Button, TextField, List, ListItem, ListItemText, CircularProgress, Paper, LinearProgress, CardHeader, Divider, Alert } from '@mui/material'
 import { Add, Savings as SavingsIcon, AccountBalance } from '@mui/icons-material'
 
 const formatCurrency = (value) => `$${value.toFixed(2)}`
@@ -147,32 +147,58 @@ export function Savings () {
   return (
     <Box>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <SavingsProgress
-            title="Emergency Fund"
-            current={state.emergencyFund}
-            goal={state.emergencyFundGoal}
-            amount={state.amount}
-            setAmount={(value) => setState((prevState) => ({ ...prevState, amount: value }))}
-            handleAdd={handleAddToEmergencyFund}
-            loading={state.loading}
-            icon={<SavingsIcon />}
-          />
-          <TransactionList transactions={state.emergencyTransactions} />
+        <Grid item p={1} xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Emergency Fund
+              </Typography>
+              <Grid container direction="column" spacing={2}>
+                <Grid item>
+                  <SavingsProgress
+                    title="Emergency Fund"
+                    current={state.emergencyFund}
+                    goal={state.emergencyFundGoal}
+                    amount={state.amount}
+                    setAmount={(value) => setState((prevState) => ({ ...prevState, amount: value }))}
+                    handleAdd={handleAddToEmergencyFund}
+                    loading={state.loading}
+                    icon={<SavingsIcon />}
+                  />
+                </Grid>
+                <Grid item>
+                  <TransactionList transactions={state.emergencyTransactions} />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <SavingsProgress
-            title="General Savings"
-            current={state.savings}
-            goal={state.goal}
-            amount={state.amount}
-            setAmount={(value) => setState((prevState) => ({ ...prevState, amount: value }))}
-            handleAdd={handleAddTransaction}
-            loading={state.loading}
-            icon={<AccountBalance />}
-          />
-          <TransactionList transactions={state.savingsTransactions} />
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                General Savings
+              </Typography>
+              <Grid container direction="column" spacing={2}>
+                <Grid item>
+                  <SavingsProgress
+                    title="General Savings"
+                    current={state.savings}
+                    goal={state.goal}
+                    amount={state.amount}
+                    setAmount={(value) => setState((prevState) => ({ ...prevState, amount: value }))}
+                    handleAdd={handleAddTransaction}
+                    loading={state.loading}
+                    icon={<AccountBalance />}
+                  />
+                </Grid>
+                <Grid item>
+                  <TransactionList transactions={state.savingsTransactions} />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
     </Box>

@@ -16,9 +16,7 @@ function TabPanel (props) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
+        <Box>{children}</Box>
       )}
     </div>
   )
@@ -54,13 +52,15 @@ function Dashboard () {
 
   return (
     <div>
-      <h2>Budgeting App</h2>
-      <Tabs value={tabValue} onChange={handleTabChange} aria-label="financial dashboard tabs">
-        <Tab label="Budgeting" />
-        <Tab label="Savings" />
-        <Tab label="Debts" />
-        <Tab label="Investments" />
-      </Tabs>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginBottom: 3 }}>
+        <h2>Budgeting App</h2>
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="financial dashboard tabs">
+          <Tab label="Budgeting" />
+          <Tab label="Savings" />
+          <Tab label="Debts" />
+          <Tab label="Investments" />
+        </Tabs>
+      </Box>
 
       {loading
         ? (
