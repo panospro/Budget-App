@@ -54,7 +54,7 @@ function Dashboard () {
 
   return (
     <div>
-      <h2>Dashboard</h2>
+      <h2>Budgeting App</h2>
       <Tabs value={tabValue} onChange={handleTabChange} aria-label="financial dashboard tabs">
         <Tab label="Budgeting" />
         <Tab label="Savings" />
