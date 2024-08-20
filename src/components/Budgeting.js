@@ -26,4 +26,29 @@ function ExpenseForm ({ setExpenses }) {
   )
 }
 
-export default ExpenseForm
+function ExpenseList ({ expenses }) {
+  return (
+    <ul>
+      {expenses.map((expense) => (
+        <li key={expense._id}>
+          {expense.title}: ${expense.amount}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+export function Budgeting ({ expenses, setExpenses }) {
+  return (
+    <div>
+      <ExpenseForm setExpenses={setExpenses} />
+      {expenses.length > 0
+        ? (
+        <ExpenseList expenses={expenses} />
+          )
+        : (
+        <p>No expenses available. Please add some.</p>
+          )}
+    </div>
+  )
+}

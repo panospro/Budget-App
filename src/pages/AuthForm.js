@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+// TODO: Add the user to see its password
+// TODO: Add forgot password
 import React, { useState } from 'react'
 import axios from 'axios'
 import { Box, TextField, Button, Typography, Paper, Divider } from '@mui/material'
